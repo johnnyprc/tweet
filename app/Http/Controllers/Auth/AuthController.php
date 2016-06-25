@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Abraham\TwitterOAuth\TwitterOAuth;
 use App\User;
 use Auth;
 use Socialite;
@@ -42,9 +43,33 @@ class AuthController extends Controller
         $this->middleware($this->guestMiddleware(), ['except' => 'logout']);
     }
 
+    /**
+     * Redirect the user to the GitHub authentication page.
+     *
+     * @return Response
+     */
     public function redirectToProvider()
     {
         return Socialite::driver('twitter')->redirect();
+    }
+
+    /**
+     * Obtain the user information from GitHub.
+     *
+     * @return Response
+     */
+    public function handleProviderCallback()
+    {
+        // $user = Socialite::driver('twitter')->user();
+
+        $connection = new TwitterOAuth(getenv('TWITTER_CLIENT_ID'),
+                                       getenv('TWITTER_CLIENT_SECRET'),
+                                       getenv('TWITTER_ACCESS_TOKEN'),
+                                       getenv('TWITTER_ACCESS_TOKEN_SECRET'));  
+        $connection->host = 'https://api.twitter.com/1.1/'; 
+        $statues = $connection->post("statuses/update", ["status" => "Hello"]); 
+
+        print_r($statues);
     }
 
     /**
