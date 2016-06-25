@@ -14,3 +14,5 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('auth', 'Auth\AuthController@redirectToProvider');
