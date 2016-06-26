@@ -7,6 +7,7 @@ use Auth;
 use Socialite;
 use Validator;
 use App\Http\Controllers\Controller;
+use Abraham\TwitterOAuth\TwitterOAuth;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
 
@@ -43,23 +44,52 @@ class AuthController extends Controller
     }
 
     /**
-     * Redirect the user to the GitHub authentication page.
+     * Get request token from Twitter and then redirect the user to the Twitter
+     * authorization page.
      *
      * @return Response
      */
     public function redirectToProvider()
     {
-        return Socialite::driver('twitter')->redirect();
+        $connection = new TwitterOAuth(getenv('TWITTER_CLIENT_ID'),
+                                       getenv('TWITTER_CLIENT_SECRET'));
+        $request_token  = $connection->oauth('oauth/request_token', 
+                                ["oauth_callback" => getenv('CALLBACK_URL')]);
+
+        if ($connection->getLastHttpCode() == 200) {
+            $url = $connection->url('oauth/authorize', ['oauth_token' => 
+                                    $request_token['oauth_token']]);
+            return redirect()->away($url);
+        } else {
+            echo 'Invalid HTTP code from Twitter API request.';
+            return view('users.error');
+        }
     }
 
     /**
-     * Obtain the user information from GitHub.
+     * Obtain access token from Twitter using oauth_verifier and oauth_token
+     * after the user has given authorization
      *
      * @return Response
      */
     public function handleProviderCallback()
     {
-        $user = Socialite::driver('twitter')->user();
+        $connection = new TwitterOAuth(getenv('TWITTER_CLIENT_ID'),
+                                       getenv('TWITTER_CLIENT_SECRET'));
+        $params = ["oauth_verifier" => $_GET['oauth_verifier'], 
+                    "oauth_token"=> $_GET['oauth_token']];
+        $access_token = $connection->oauth("oauth/access_token", $params);
+        
+        // storing access token to database
+        if ($connection->getLastHttpCode() == 200) {
+            \DB::table('accesstokens')->where('id', 1)
+                ->update(['oauth_token' => $access_token['oauth_token'],
+                          'oauth_token_secret' => $access_token['oauth_token_secret']]);
+        } else {
+            echo 'Invalid HTTP code from Twitter API request.';
+            return view('users.error');
+        }
+        return view('users.auth-success');
     }
 
     /**

@@ -7,8 +7,9 @@
     </head>
     <body>
     <div class="container">
+        <br><a href="{{ url('auth/twitter') }}">Sign in to Twitter</a>
         <!-- An input box and a button for tweeting -->
-        <form class="form-horizontal" action="tweet-success" method="post">
+        <form class="form-horizontal" action="tweet" method="post">
             <br>
             <input type ="text" id="tweetText" name="tweetText"></input> 
             <br>
@@ -16,7 +17,7 @@
         <input type="hidden" name="_token" value="{{ csrf_token() }}">
         </form>
         <!-- Display the history of tweets -->
-        @foreach($all_tweets as $tweet)
+        @foreach( $all_tweets->reverse() as $tweet)
             <h2>{{ $tweet->tweetText }}</h2>
             <p>
                 {{ $tweet->timeStamp }}

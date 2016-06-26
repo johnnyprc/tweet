@@ -15,7 +15,13 @@
 Route::get('home', 'TweetController@index');
 
 // redirected to when the tweet is sent and insert into database
-Route::post('tweet-success', 'TweetController@tweet');
+Route::post('tweet', 'TweetController@tweet');
+
+// authentication page for twitter
+Route::get('auth/twitter', 'Auth\AuthController@redirectToProvider');
+
+// callback page for twitter
+Route::get('auth/twitter/callback', 'Auth\AuthController@handleProviderCallback');
 
 // redirected to when there is an error
 // Route::get('error', function () {

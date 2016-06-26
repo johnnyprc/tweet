@@ -21,10 +21,11 @@ class TweetController extends Controller
         // create authetication connection and update status on twitter, if 
         // request is succesfull insert tweet into DB, report error otherwise
         $tweetText = $request->input('tweetText');
+        $access_token = \DB::table('accesstokens')->where('id', 1)->first();
         $connection = new TwitterOAuth(getenv('TWITTER_CLIENT_ID'),
                                        getenv('TWITTER_CLIENT_SECRET'),
-                                       getenv('TWITTER_ACCESS_TOKEN'),
-                                       getenv('TWITTER_ACCESS_TOKEN_SECRET'));  
+                                       $access_token->oauth_token,
+                                       $access_token->oauth_token_secret);  
         $connection->host = 'https://api.twitter.com/1.1/'; 
 
         // separate tweets when over CHAR_LIMIT and start/finish tweet with
