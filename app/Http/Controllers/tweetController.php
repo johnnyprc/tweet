@@ -8,6 +8,8 @@ use Illuminate\Http\Request as Request;
 
 class TweetController extends Controller
 {
+    const CHAR_LIMIT = 140;                         // character limit for Twitter
+
     function index()
     {
         $tweets = \App\Tweet::all();
@@ -24,16 +26,47 @@ class TweetController extends Controller
                                        getenv('TWITTER_ACCESS_TOKEN'),
                                        getenv('TWITTER_ACCESS_TOKEN_SECRET'));  
         $connection->host = 'https://api.twitter.com/1.1/'; 
-        $statues = $connection->post("statuses/update", ["status" => $tweetText]); 
 
-        if ($connection->getLastHttpCode() == 200) {
-            $this->insertDB($tweetText);
-        } else {
-            echo 'Invalid HTTP code from Twitter API request.';
-            return view('users.error');
+        // separate tweets when over CHAR_LIMIT and start/finish tweet with
+        //complete words by putting the cutoff word to the next tweet
+        for ($index = 0; $index < strlen($tweetText); $index += $textLength ) {
+            $textLength = self::CHAR_LIMIT; 
+            if ($index + self::CHAR_LIMIT >= strlen($tweetText)) {
+                $textLength = strlen($tweetText) - $index;
+            } else {
+                if (ctype_alpha($tweetText[$index + self::CHAR_LIMIT - 1]) && 
+                    ctype_alpha($tweetText[$index + self::CHAR_LIMIT])) {
+                    $wordPos = $this->findLatestNonLetter($tweetText, $index, $index + self::CHAR_LIMIT - 2);
+                    $textLength = $wordPos - $index;
+                }
+            }
+
+            $temp = substr($tweetText, $index, $textLength);
+            $statues = $connection->post("statuses/update", ["status" => $temp]); 
+
+            if ($connection->getLastHttpCode() == 200) {
+                $this->insertDB($temp);
+            } else {
+                echo 'Invalid HTTP code from Twitter API request.';
+                return view('users.error');
+            }
         }
 
         return view('users.tweet-success');
+    }
+
+    // from the upperIndex position going backwards, find the first non-letter
+    // character and return the the index of that character, if all characters
+    // between lower and upper index are letters then return original upperIndex
+    private function findLatestNonLetter($text, $lowerIndex, $upperIndex)
+    {
+        while ($upperIndex > $lowerIndex) {
+            if (!ctype_alpha($text[$upperIndex])) {
+                return $upperIndex;
+            }
+            $upperIndex--;
+        }
+        return $lowerIndex + self::CHAR_LIMIT;
     }
 
     private function insertDB($text)
