@@ -11,10 +11,10 @@
 |
 */
 
-Route::get('/', function () {
+Route::get('home', function () {
     return view('welcome');
 });
 
-// Route::get('auth/twitter', 'Auth\AuthController@redirectToProvider');
+Route::get('/', 'UserController@index');
 
-Route::get('auth/twitter', 'Auth\AuthController@handleProviderCallback');
+Route::post('tweet', 'UserController@tweet');

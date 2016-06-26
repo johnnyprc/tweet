@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Auth;
 
-use Abraham\TwitterOAuth\TwitterOAuth;
 use App\User;
 use Auth;
 use Socialite;
@@ -60,16 +59,7 @@ class AuthController extends Controller
      */
     public function handleProviderCallback()
     {
-        // $user = Socialite::driver('twitter')->user();
-
-        $connection = new TwitterOAuth(getenv('TWITTER_CLIENT_ID'),
-                                       getenv('TWITTER_CLIENT_SECRET'),
-                                       getenv('TWITTER_ACCESS_TOKEN'),
-                                       getenv('TWITTER_ACCESS_TOKEN_SECRET'));  
-        $connection->host = 'https://api.twitter.com/1.1/'; 
-        $statues = $connection->post("statuses/update", ["status" => "Hello"]); 
-
-        print_r($statues);
+        $user = Socialite::driver('twitter')->user();
     }
 
     /**
