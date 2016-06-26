@@ -11,10 +11,13 @@
 |
 */
 
-Route::get('home', function () {
-    return view('welcome');
-});
+// home page which allows user to tweet and also displays a history of tweets
+Route::get('home', 'TweetController@index');
 
-Route::get('/', 'UserController@index');
+// redirected to when the tweet is sent and insert into database
+Route::post('tweet-success', 'TweetController@tweet');
 
-Route::post('tweet', 'UserController@tweet');
+// redirected to when there is an error
+// Route::get('error', function () {
+//     return view('users.error');
+// });
