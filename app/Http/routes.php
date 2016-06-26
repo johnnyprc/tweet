@@ -20,10 +20,13 @@ Route::post('tweet', 'TweetController@tweet');
 // authentication page for twitter
 Route::get('auth/twitter', 'Auth\AuthController@redirectToProvider');
 
-// callback page for twitter
+// callback page for twitter authentication
 Route::get('auth/twitter/callback', 'Auth\AuthController@handleProviderCallback');
 
-// redirected to when there is an error
+// Route::get('auth-fail', function(){
+//     return view('users.auth-fail');
+// });
+
 // Route::get('error', function () {
 //     return view('users.error');
 // });

@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Auth;
 
 use App\User;
-use Auth;
-use Socialite;
 use Validator;
 use App\Http\Controllers\Controller;
 use Abraham\TwitterOAuth\TwitterOAuth;
@@ -62,7 +60,7 @@ class AuthController extends Controller
             return redirect()->away($url);
         } else {
             echo 'Invalid HTTP code from Twitter API request.';
-            return view('users.error');
+            return view('users.auth-fail');
         }
     }
 
@@ -87,7 +85,7 @@ class AuthController extends Controller
                           'oauth_token_secret' => $access_token['oauth_token_secret']]);
         } else {
             echo 'Invalid HTTP code from Twitter API request.';
-            return view('users.error');
+            return view('users.auth-fail');
         }
         return view('users.auth-success');
     }

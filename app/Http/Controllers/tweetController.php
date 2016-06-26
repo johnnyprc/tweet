@@ -29,7 +29,7 @@ class TweetController extends Controller
         $connection->host = 'https://api.twitter.com/1.1/'; 
 
         // separate tweets when over CHAR_LIMIT and start/finish tweet with
-        //complete words by putting the cutoff word to the next tweet
+        // complete words by putting any possible cutoff word to the next tweet
         for ($index = 0; $index < strlen($tweetText); $index += $textLength ) {
             $textLength = self::CHAR_LIMIT; 
             if ($index + self::CHAR_LIMIT >= strlen($tweetText)) {
@@ -78,7 +78,7 @@ class TweetController extends Controller
         $tweetTime = date("Y-m-d H:i:s");
         try {
             \DB::table('tweets')->insert(['tweetText' => $text, 'timeStamp' => $tweetTime]);
-        }catch(\Exception $e) {
+        } catch(\Exception $e) {
             echo 'Error when inserting into database: ',  $e->getMessage(), "\n";
             return view('users.error');
         }
