@@ -22,11 +22,3 @@ Route::get('auth/twitter', 'Auth\AuthController@redirectToProvider');
 
 // callback page for twitter authentication
 Route::get('auth/twitter/callback', 'Auth\AuthController@handleProviderCallback');
-
-// Route::get('auth-fail', function(){
-//     return view('users.auth-fail');
-// });
-
-// Route::get('error', function () {
-//     return view('users.error');
-// });

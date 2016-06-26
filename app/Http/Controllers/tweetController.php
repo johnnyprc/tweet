@@ -22,6 +22,10 @@ class TweetController extends Controller
         // request is succesfull insert tweet into DB, report error otherwise
         $tweetText = $request->input('tweetText');
         $access_token = \DB::table('accesstokens')->where('id', 1)->first();
+        if ($access_token == NULL) {
+            echo "Please Sign in to Twitter first before sending a Tweet.";
+            return view('users.auth-fail');
+        }
         $connection = new TwitterOAuth(getenv('TWITTER_CLIENT_ID'),
                                        getenv('TWITTER_CLIENT_SECRET'),
                                        $access_token->oauth_token,

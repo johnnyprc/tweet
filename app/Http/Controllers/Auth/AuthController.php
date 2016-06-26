@@ -78,11 +78,19 @@ class AuthController extends Controller
                     "oauth_token"=> $_GET['oauth_token']];
         $access_token = $connection->oauth("oauth/access_token", $params);
         
-        // storing access token to database
+        // update access token in database, insert if doesn't exist
         if ($connection->getLastHttpCode() == 200) {
-            \DB::table('accesstokens')->where('id', 1)
-                ->update(['oauth_token' => $access_token['oauth_token'],
-                          'oauth_token_secret' => $access_token['oauth_token_secret']]);
+            if(\DB::table('accesstokens')->where('id', 1)->first() == NULL) {
+                \DB::table('accesstokens')->insert(
+                    ['id' => 1,
+                     'oauth_token' => $access_token['oauth_token'],
+                     'oauth_token_secret' => $access_token['oauth_token_secret']]);
+            } else {            
+                \DB::table('accesstokens')
+                    ->where('id', 1)
+                    ->update(['oauth_token' => $access_token['oauth_token'],
+                              'oauth_token_secret' => $access_token['oauth_token_secret']]);
+            }
         } else {
             echo 'Invalid HTTP code from Twitter API request.';
             return view('users.auth-fail');
